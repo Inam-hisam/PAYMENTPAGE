@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment QR Tool</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family:
+        "Segoe UI",
+        "Segoe UI Emoji",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      transition: 0.4s;
+    }
+
+    body.success-mode { background: #16a34a; }
+    body.fail-mode { background: #dc2626; }
+    body.cancel-mode { background: #555; }
+
+    /* SIDE SERVICES */
+    .bg-left, .bg-right {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 18%;
+      color: #fff;
+      font-size: 12px;
+      padding: 10px;
+      font-weight: 700;
+      overflow-y: auto;
+      z-index: 1;
+    }
+
+    .bg-left { left: 0; }
+    .bg-right { right: 0; text-align: right; }
+
+    .service {
+      margin-bottom: 6px;
+      padding: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 5px;
+    }
+
+    /* MAIN CARD */
+    .container {
+      width: 90%;
+      max-width: 340px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      z-index: 2;
+    }
+
+    body.success-mode .container,
+    body.fail-mode .container,
+    body.cancel-mode .container {
+      display: none;
+    }
+
+    .shop-header {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .tagline {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    h2 { margin: 10px 0; }
+
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    .generate-btn { background: #667eea; color: #fff; }
+    .success-btn { background: green; color: #fff; display:none; }
+    .fail-btn { background: red; color: #fff; display:none; }
+    .cancel-btn { background: #555; color: #fff; display:none; }
+
+    #qrcode {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    #qrcode canvas { margin: auto; }
+
+    .amount {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    /* SCREENS */
+    .screen {
+      display: none;
+      position: absolute;
+      text-align: center;
+      color: white;
+      z-index: 2;
+    }
+
+    body.success-mode #successScreen,
+    body.fail-mode #failScreen,
+    body.cancel-mode #cancelScreen {
+      display: block;
+    }
+
+    .icon { font-size: 70px; }
+    .text { font-size: 26px; font-weight: bold; }
+
+    .reset-btn {
+      margin-top: 20px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 8px;
+      border: none;
+    }
+
+    @media (max-width: 480px) {
+      .bg-left, .bg-right {
+        width: 16%;
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- LEFT SERVICES -->
+<div class="bg-left">
+  <div class="service">🪪 Aadhaar</div>
+  <div class="service">🆔 PAN</div>
+  <div class="service">📄 Ration</div>
+  <div class="service">📜 Land</div>
+  <div class="service">💼 CSC</div>
+</div>
+
+<!-- RIGHT SERVICES -->
+<div class="bg-right">
+  <div class="service">📝 Form</div>
+  <div class="service">🖨️ Print</div>
+  <div class="service">🏦 Banking</div>
+  <div class="service">💡 Bill</div>
+  <div class="service">📱 Recharge</div>
+</div>
+
+<div class="container">
+
+  <div class="shop-header">INAM DIGITAL & eSERVICES</div>
+  <div class="tagline">🔒 Secure Digital Services</div>
+
+  <h2 id="titleText">💰 Scan & Pay</h2>
+
+  <input type="number" id="amount" placeholder="Enter Amount">
+  <button class="generate-btn" id="generateBtn" onclick="generateQR()">Generate QR</button>
+
+  <div id="qrcode"></div>
+
+  <div class="amount" id="amountText"></div>
+
+  <button class="success-btn" id="successBtn" onclick="showSuccess()">✅ Payment Received</button>
+  <button class="fail-btn" id="failBtn" onclick="showFail()">❌ Payment Failed</button>
+  <button class="cancel-btn" id="cancelBtn" onclick="showCancel()">↩️ Cancel</button>
+
+</div>
+
+<!-- SUCCESS -->
+<div id="successScreen" class="screen">
+  <div class="icon">✔</div>
+  <div class="text">Payment Successful</div>
+  <button class="reset-btn" onclick="resetApp()">New Payment</button>
+</div>
+
+<!-- FAIL -->
+<div id="failScreen" class="screen">
+  <div class="icon">❌</div>
+  <div class="text">Payment Failed</div>
+  <button class="reset-btn" onclick="resetApp()">Retry</button>
+</div>
+
+<!-- CANCEL -->
+<div id="cancelScreen" class="screen">
+  <div class="icon">↩️</div>
+  <div class="text">Payment Cancelled</div>
+  <button class="reset-btn" onclick="resetApp()">Back</button>
+</div>
+
+<script>
+function generateQR() {
+  let amount = document.getElementById("amount").value;
+
+  if (!amount) {
+    alert("Enter amount");
+    return;
+  }
+
+  let upiURL = `upi://pay?pa=inamesrvices@axl&pn=INAM DIGITAL&am=${amount}&cu=INR`;
+
+  document.getElementById("qrcode").innerHTML = "";
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: upiURL,
+    width: 220,
+    height: 220
+  });
+
+  document.getElementById("amountText").innerText = "₹ " + amount;
+
+  document.getElementById("amount").style.display = "none";
+  document.getElementById("generateBtn").style.display = "none";
+  document.getElementById("titleText").style.display = "none";
+
+  document.getElementById("successBtn").style.display = "block";
+  document.getElementById("failBtn").style.display = "block";
+  document.getElementById("cancelBtn").style.display = "block";
+}
+
+function showSuccess() {
+  document.body.className = "success-mode";
+}
+
+function showFail() {
+  document.body.className = "fail-mode";
+  if (navigator.vibrate) navigator.vibrate([200,100,200]);
+}
+
+function showCancel() {
+  document.body.className = "cancel-mode";
+}
+
+function resetApp() {
+  document.body.className = "";
+
+  document.getElementById("qrcode").innerHTML = "";
+  document.getElementById("amount").value = "";
+  document.getElementById("amountText").innerText = "";
+
+  document.getElementById("amount").style.display = "block";
+  document.getElementById("generateBtn").style.display = "block";
+  document.getElementById("titleText").style.display = "block";
+
+  document.getElementById("successBtn").style.display = "none";
+  document.getElementById("failBtn").style.display = "none";
+  document.getElementById("cancelBtn").style.display = "none";
+}
+</script>
+
+</body>
+</html>
